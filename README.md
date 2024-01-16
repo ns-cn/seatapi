@@ -1,2 +1,2 @@
-# seatable-go
+# seatapi
 seatable-api for Go
