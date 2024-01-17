@@ -2,8 +2,8 @@ package seatapi
 
 import (
 	"fmt"
+	"github.com/ns-cn/seatapi/util"
 	"net/http"
-	"seatapi/util"
 	"strings"
 )
 
