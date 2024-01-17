@@ -19,7 +19,6 @@ func (api SeaTableApi) wholeUrl(path string, params ...interface{}) string {
 
 func (api SeaTableApi) tokenHeader(token string) string {
 	return fmt.Sprintf("Bearer %s", token)
-
 }
 
 // ApiError 仅错误时返回
