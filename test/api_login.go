@@ -10,12 +10,13 @@ func main() {
 	action := api.GetAccountToken("ns-cn@qq.com", "P@ssw0rd", "")
 	token, err := action.DoWithDefaultClient()
 	fmt.Println(token, err)
-	getBaseContextWithAccountTokenAction := api.GetBaseContextWithAccountToken(47529, "test", token.Token)
-	baseContext, err := getBaseContextWithAccountTokenAction.DoWithDefaultClient()
-	baseContext.WorkspaceID = 47529
-	baseContext.DtableName = "test"
+	baseContextWithApiTokenAction := api.GetBaseContextWithApiToken("9b2ee0f10dc3563785f52554738f8cda52db557c")
+	ctx, _ := baseContextWithApiTokenAction.DoWithDefaultClient()
+	fmt.Println(ctx)
+	row := api.AddRow(*ctx, "t", map[string]interface{}{"名称": "测试3", "remark": "测试"}, nil)
+	client, err := row.DoWithDefaultClient()
+	fmt.Println(client)
 	if err != nil {
 		return
 	}
-	fmt.Println(baseContext)
 }

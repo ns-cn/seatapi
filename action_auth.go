@@ -30,10 +30,10 @@ type AccountToken struct {
 // 该方式仅能获取到AccessToken,DtableUuid,DtableServer,DtableSocket,DtableDb
 // 其他额外的字段请手动设置
 func (api SeaTableApi) GetBaseContextWithAccountToken(workspaceId int, baseName string, accountToken string) SeaTableAction[BaseContext] {
-	url := fmt.Sprintf("%s/api/v2.1/workspace/%d/dtable/%s/access-token/", api.Host, workspaceId, baseName)
+	url := api.wholeUrl("/api/v2.1/workspace/%d/dtable/%s/access-token/", workspaceId, baseName)
 	req, _ := http.NewRequest("GET", url, nil)
 	req.Header.Add("accept", "application/json")
-	req.Header.Add("authorization", fmt.Sprintf("Bearer %s", accountToken))
+	req.Header.Add("authorization", api.tokenHeader(accountToken))
 	action := SeaTableAction[BaseContext]{}
 	action.Request = req
 	return action
@@ -45,7 +45,7 @@ func (api SeaTableApi) GetBaseContextWithApiToken(apiToken string) SeaTableActio
 	url := api.wholeUrl("/api/v2.1/dtable/app-access-token/")
 	req, _ := http.NewRequest("GET", url, nil)
 	req.Header.Add("accept", "application/json")
-	req.Header.Add("authorization", fmt.Sprintf("Bearer %s", apiToken))
+	req.Header.Add("authorization", api.tokenHeader(apiToken))
 	action := SeaTableAction[BaseContext]{}
 	action.Request = req
 	return action

@@ -33,11 +33,11 @@ func (action *SeaTableAction[R]) DoWithClient(client *http.Client) (*R, error) {
 	if err != nil {
 		return action.Parsed, err
 	}
+	defer func(Body io.ReadCloser) {
+		_ = Body.Close()
+	}(action.Response.Body)
 	if action.Response.StatusCode == http.StatusOK {
 		if action.Response.Body != nil {
-			defer func(Body io.ReadCloser) {
-				_ = Body.Close()
-			}(action.Response.Body)
 			action.Data, err = io.ReadAll(action.Response.Body)
 			if err != nil {
 				return nil, err
@@ -49,6 +49,8 @@ func (action *SeaTableAction[R]) DoWithClient(client *http.Client) (*R, error) {
 			}
 		}
 		return action.Parsed, nil
+	} else if action.Response.Body != nil {
+		action.Data, err = io.ReadAll(action.Response.Body)
 	}
 	return action.Parsed, fmt.Errorf(fmt.Sprintf("%d", action.Response.StatusCode))
 }
