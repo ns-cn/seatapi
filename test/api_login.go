@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"seatapi"
+	"github.com/ns-cn/seatapi"
 )
 
 func main() {
