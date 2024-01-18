@@ -12,9 +12,12 @@ func main() {
 	fmt.Println(token, err)
 	baseContextWithApiTokenAction := api.GetBaseContextWithApiToken("9b2ee0f10dc3563785f52554738f8cda52db557c")
 	ctx, _ := baseContextWithApiTokenAction.DoWithDefaultClient()
-	rowsWithSQLAction := api.ListRowsWithSQL(*ctx, "select * from room", false)
+	rowsWithSQLAction := api.ListRowsWithSQL(*ctx, "select * from room", true)
 	result, _ := rowsWithSQLAction.DoWithDefaultClient()
 	fmt.Println(result)
+	s := seatapi.RowsWithSQL[map[string]interface{}]{}
+	seatapi.ParseRowsWithSQL(*result, &s)
+	fmt.Println(s)
 	row := api.AddRow(*ctx, "t", map[string]interface{}{"名称": "测试3", "remark": "测试"}, nil)
 	client, err := row.DoWithDefaultClient()
 	fmt.Println(client)

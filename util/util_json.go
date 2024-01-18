@@ -1,6 +1,9 @@
 package util
 
-import "encoding/json"
+import (
+	"encoding/json"
+	"reflect"
+)
 
 // ParseToJsonString 将data转换为jsonString
 func ParseToJsonString(data interface{}) string {
@@ -16,12 +19,16 @@ func ParseToJsonString(data interface{}) string {
 	}
 }
 
-// ParseFromMapToAny 将from转换为to
-// to: 必须标注为指针类型
-func ParseFromMapToAny(from interface{}, to interface{}) {
+// ParseFromMapToPointer 将from转换为to
+// toPointer: 必须标注为指针类型
+func ParseFromMapToPointer(from interface{}, toPointer interface{}) {
+	// 判断to必须是指针类型
+	if reflect.TypeOf(toPointer).Kind() != reflect.Ptr {
+		panic("to must be a pointer")
+	}
 	if from != nil {
-		if bytes, err := json.Marshal(from); err != nil {
-			_ = json.Unmarshal(bytes, to)
+		if bytes, err := json.Marshal(from); err == nil {
+			_ = json.Unmarshal(bytes, toPointer)
 		}
 	}
 }

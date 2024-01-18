@@ -44,7 +44,7 @@ func ParseRowsWithSQL[F any, T any](from RowsWithSQL[F], to *RowsWithSQL[T]) {
 	to.ApiResult = from.ApiResult
 	to.Metadata = from.Metadata
 	data := make([]T, 0)
-	util.ParseFromMapToAny(from.Results, data)
+	util.ParseFromMapToPointer(from.Results, &data)
 	to.Results = data
 }
 
