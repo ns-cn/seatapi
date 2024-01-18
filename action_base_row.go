@@ -10,9 +10,12 @@ import (
 // ListRowsWithSQL 使用SQL方式获取行数据
 // convertKeys 确定列是作为其键 （true） 返回，还是作为其名称（默认为 false）返回。
 func (api SeaTableApi) ListRowsWithSQL(ctx BaseContext, sql string, convertKeys bool) SeaTableAction[RowsWithSQL[map[string]interface{}]] {
-	url := api.wholeUrl("/dtable-db/api/v1/query/%s/", ctx.WorkspaceID, ctx.DtableUuid)
+	url := api.wholeUrl("/dtable-db/api/v1/query/%s/", ctx.DtableUuid)
 	payload := strings.NewReader(fmt.Sprintf("{\"convert_keys\":%t,\"sql\":\"%s\"}", convertKeys, sql))
-	req, _ := http.NewRequest("POST", url, payload)
+	req, err := http.NewRequest("POST", url, payload)
+	if err != nil {
+		panic(err)
+	}
 	req.Header.Add("accept", "application/json")
 	req.Header.Add("content-type", "application/json")
 	req.Header.Add("authorization", api.tokenHeader(ctx.AccessToken))
