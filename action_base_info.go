@@ -7,7 +7,7 @@ import (
 
 // GetBaseInfo 获取基础信息
 func (api SeaTableApi) GetBaseInfo(ctx BaseContext) SeaTableAction[BaseInfo] {
-	url := api.wholeUrl("/dtable-server/dtables/%s", ctx.DtableUuid)
+	url := api.assignUrl(ctx.DtableServer, "/dtables/%s", ctx.DtableUuid)
 	req, _ := http.NewRequest("GET", url, nil)
 	req.Header.Add("accept", "application/json")
 	req.Header.Add("authorization", api.tokenHeader(ctx.AccessToken))

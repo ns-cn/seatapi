@@ -10,7 +10,8 @@ import (
 // ListRowsWithSQL 使用SQL方式获取行数据
 // convertKeys 确定列是作为其键 （true） 返回，还是作为其名称（默认为 false）返回。
 func (api SeaTableApi) ListRowsWithSQL(ctx BaseContext, sql string, convertKeys bool) SeaTableAction[RowsWithSQL[map[string]interface{}]] {
-	url := api.wholeUrl("/dtable-db/api/v1/query/%s/", ctx.DtableUuid)
+	url := api.assignUrl(ctx.DtableDb, "/api/v1/query/%s/", ctx.DtableUuid)
+	//url := api.wholeUrl("/dtable-db/api/v1/query/%s/", ctx.DtableUuid)
 	payload := strings.NewReader(fmt.Sprintf("{\"convert_keys\":%t,\"sql\":\"%s\"}", convertKeys, sql))
 	req, err := http.NewRequest("POST", url, payload)
 	if err != nil {
@@ -51,7 +52,7 @@ func ParseRowsWithSQL[F any, T any](from RowsWithSQL[F], to *RowsWithSQL[T]) {
 // GetRowByRowId 获取行数据
 // convertKeys 确定列是作为其键 （true） 返回，还是作为其名称（默认为 false）返回。
 func (api SeaTableApi) GetRowByRowId(ctx BaseContext, tableName string, rowId string, convertKeys bool) SeaTableAction[map[string]interface{}] {
-	url := api.wholeUrl("/dtable-server/api/v1/dtables/%s/rows/%s/?table_name=%s&convert=%b", ctx.DtableUuid, rowId, tableName, convertKeys)
+	url := api.assignUrl(ctx.DtableServer, "/api/v1/dtables/%s/rows/%s/?table_name=%s&convert=%b", ctx.DtableUuid, rowId, tableName, convertKeys)
 	req, _ := http.NewRequest("GET", url, nil)
 	req.Header.Add("accept", "application/json")
 	req.Header.Add("authorization", api.tokenHeader(ctx.AccessToken))
@@ -77,7 +78,7 @@ type InsertRowAnchor struct {
 
 // AddRow 添加行
 func (api SeaTableApi) AddRow(ctx BaseContext, tableName string, data interface{}, anchor *InsertRowAnchor) SeaTableAction[map[string]interface{}] {
-	url := api.wholeUrl("/dtable-server/api/v1/dtables/%s/rows/", ctx.DtableUuid)
+	url := api.assignUrl(ctx.DtableServer, "/api/v1/dtables/%s/rows/", ctx.DtableUuid)
 	body := map[string]interface{}{"table_name": tableName, "row": data}
 	if anchor != nil && anchor.AnchorRowId != "" {
 		body["anchor_row_id"] = anchor.AnchorRowId
@@ -97,7 +98,7 @@ func (api SeaTableApi) AddRow(ctx BaseContext, tableName string, data interface{
 
 // UpdateRow 更新行
 func (api SeaTableApi) UpdateRow(ctx BaseContext, tableName string, rowId string, data interface{}) SeaTableAction[map[string]interface{}] {
-	url := api.wholeUrl("/dtable-server/api/v1/dtables/%s/rows/", ctx.DtableUuid)
+	url := api.assignUrl(ctx.DtableServer, "/api/v1/dtables/%s/rows/", ctx.DtableUuid)
 	body := map[string]interface{}{"table_name": tableName, "row_id": rowId, "row": data}
 	payload := strings.NewReader(util.ParseToJsonString(body))
 	req, _ := http.NewRequest("PUT", url, payload)
@@ -109,7 +110,7 @@ func (api SeaTableApi) UpdateRow(ctx BaseContext, tableName string, rowId string
 
 // DeleteRow 删除行
 func (api SeaTableApi) DeleteRow(ctx BaseContext, tableName string, rowId string) SeaTableAction[map[string]interface{}] {
-	url := api.wholeUrl("/dtable-server/api/v1/dtables/%s/rows/", ctx.DtableUuid)
+	url := api.assignUrl(ctx.DtableServer, "/api/v1/dtables/%s/rows/", ctx.DtableUuid)
 	body := map[string]interface{}{"table_name": tableName, "row_id": rowId}
 	payload := strings.NewReader(util.ParseToJsonString(body))
 	req, _ := http.NewRequest("DELETE", url, payload)
@@ -121,7 +122,7 @@ func (api SeaTableApi) DeleteRow(ctx BaseContext, tableName string, rowId string
 
 // AddRows 添加多行数据
 func (api SeaTableApi) AddRows(ctx BaseContext, tableName string, data ...interface{}) SeaTableAction[map[string]interface{}] {
-	url := api.wholeUrl("/dtable-server/api/v1/dtables/%s/batch-append-rows/", ctx.DtableUuid)
+	url := api.assignUrl(ctx.DtableServer, "/api/v1/dtables/%s/batch-append-rows/", ctx.DtableUuid)
 	body := map[string]interface{}{"table_name": tableName, "rows": data}
 	payload := strings.NewReader(util.ParseToJsonString(body))
 	req, _ := http.NewRequest("POST", url, payload)
@@ -136,7 +137,7 @@ func (api SeaTableApi) UpdateRows(ctx BaseContext, tableName string, data ...str
 	rowId string
 	data  interface{}
 }) SeaTableAction[map[string]interface{}] {
-	url := api.wholeUrl("/dtable-server/api/v1/dtables/%s/batch-update-rows/", ctx.DtableUuid)
+	url := api.assignUrl(ctx.DtableServer, "/api/v1/dtables/%s/batch-update-rows/", ctx.DtableUuid)
 	body := map[string]interface{}{"table_name": tableName, "updates": data}
 	payload := strings.NewReader(util.ParseToJsonString(body))
 	req, _ := http.NewRequest("PUT", url, payload)
@@ -148,7 +149,7 @@ func (api SeaTableApi) UpdateRows(ctx BaseContext, tableName string, data ...str
 
 // DeleteRows 删除多行数据
 func (api SeaTableApi) DeleteRows(ctx BaseContext, tableName string, rowIds ...string) SeaTableAction[map[string]interface{}] {
-	url := api.wholeUrl("/dtable-server/api/v1/dtables/%s/batch-delete-rows/", ctx.DtableUuid)
+	url := api.assignUrl(ctx.DtableServer, "/api/v1/dtables/%s/batch-delete-rows/", ctx.DtableUuid)
 	body := map[string]interface{}{"table_name": tableName, "row_ids": rowIds}
 	payload := strings.NewReader(util.ParseToJsonString(body))
 	req, _ := http.NewRequest("DELETE", url, payload)
@@ -160,7 +161,7 @@ func (api SeaTableApi) DeleteRows(ctx BaseContext, tableName string, rowIds ...s
 
 // LockRows 锁定多行数据
 func (api SeaTableApi) LockRows(ctx BaseContext, tableName string, rowIds ...string) SeaTableAction[map[string]interface{}] {
-	url := api.wholeUrl("/dtable-server/api/v1/dtables/%s/lock-rows/", ctx.DtableUuid)
+	url := api.assignUrl(ctx.DtableServer, "/api/v1/dtables/%s/lock-rows/", ctx.DtableUuid)
 	body := map[string]interface{}{"table_name": tableName, "row_ids": rowIds}
 	payload := strings.NewReader(util.ParseToJsonString(body))
 	req, _ := http.NewRequest("PUT", url, payload)
@@ -172,7 +173,7 @@ func (api SeaTableApi) LockRows(ctx BaseContext, tableName string, rowIds ...str
 
 // UnLockRows 解锁多行数据
 func (api SeaTableApi) UnLockRows(ctx BaseContext, tableName string, rowIds ...string) SeaTableAction[map[string]interface{}] {
-	url := api.wholeUrl("/dtable-server/api/v1/dtables/%s/unlock-rows/", ctx.DtableUuid)
+	url := api.assignUrl(ctx.DtableServer, "/api/v1/dtables/%s/unlock-rows/", ctx.DtableUuid)
 	body := map[string]interface{}{"table_name": tableName, "row_ids": rowIds}
 	payload := strings.NewReader(util.ParseToJsonString(body))
 	req, _ := http.NewRequest("PUT", url, payload)

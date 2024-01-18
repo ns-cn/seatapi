@@ -2,6 +2,7 @@ package seatapi
 
 import (
 	"fmt"
+	"strings"
 )
 
 // SeaTableApi  接口
@@ -15,6 +16,17 @@ func (api SeaTableApi) wholeUrl(path string, params ...interface{}) string {
 		return fmt.Sprintf("%s%s", api.Host, path)
 	}
 	return fmt.Sprintf("%s%s", api.Host, fmt.Sprintf(path, params...))
+}
+
+// wholeUrl 生成完整URL
+func (api SeaTableApi) assignUrl(host string, path string, params ...interface{}) string {
+	if strings.HasSuffix(host, "/") {
+		host = strings.TrimSuffix(host, "/")
+	}
+	if len(params) == 0 {
+		return fmt.Sprintf("%s%s", host, path)
+	}
+	return fmt.Sprintf("%s%s", host, fmt.Sprintf(path, params...))
 }
 
 func (api SeaTableApi) tokenHeader(token string) string {
