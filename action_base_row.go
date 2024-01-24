@@ -97,15 +97,21 @@ func (api SeaTableApi) AddRow(ctx BaseContext, tableName string, data interface{
 }
 
 // UpdateRow 更新行
-func (api SeaTableApi) UpdateRow(ctx BaseContext, tableName string, rowId string, data interface{}) SeaTableAction[map[string]interface{}] {
+func (api SeaTableApi) UpdateRow(ctx BaseContext, tableName string, data UpdateRowReq) SeaTableAction[map[string]interface{}] {
 	url := api.assignUrl(ctx.DtableServer, "/api/v1/dtables/%s/rows/", ctx.DtableUuid)
-	body := map[string]interface{}{"table_name": tableName, "row_id": rowId, "row": data}
+	body := map[string]interface{}{"table_name": tableName, "row_id": data.RowId, "row": data.Data}
 	payload := strings.NewReader(util.ParseToJsonString(body))
 	req, _ := http.NewRequest("PUT", url, payload)
 	req.Header.Add("accept", "application/json")
 	req.Header.Add("content-type", "application/json")
 	req.Header.Add("authorization", api.tokenHeader(ctx.AccessToken))
 	return SeaTableAction[map[string]interface{}]{Request: req}
+}
+
+// UpdateRowReq 更新行请求
+type UpdateRowReq struct {
+	RowId string
+	Data  interface{}
 }
 
 // DeleteRow 删除行
@@ -133,10 +139,7 @@ func (api SeaTableApi) AddRows(ctx BaseContext, tableName string, data ...interf
 }
 
 // UpdateRows 更新多行数据
-func (api SeaTableApi) UpdateRows(ctx BaseContext, tableName string, data ...struct {
-	rowId string
-	data  interface{}
-}) SeaTableAction[map[string]interface{}] {
+func (api SeaTableApi) UpdateRows(ctx BaseContext, tableName string, data ...UpdateRowReq) SeaTableAction[map[string]interface{}] {
 	url := api.assignUrl(ctx.DtableServer, "/api/v1/dtables/%s/batch-update-rows/", ctx.DtableUuid)
 	body := map[string]interface{}{"table_name": tableName, "updates": data}
 	payload := strings.NewReader(util.ParseToJsonString(body))

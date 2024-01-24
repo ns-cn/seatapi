@@ -16,7 +16,9 @@ func main() {
 	_rowsWithSQLAction := ioApi.ListRowsWithSQL(*ioContext, "select * from room", true)
 	_result, _ := _rowsWithSQLAction.DoWithDefaultClient()
 	fmt.Println(_result)
-
+	infoAction := ioApi.GetBaseInfo(*ioContext)
+	info, _ := infoAction.DoWithDefaultClient()
+	fmt.Println(info)
 	api := seatapi.SeaTableApi{Host: "https://cloud.seatable.cn"}
 	baseContextWithApiTokenAction := api.GetBaseContextWithApiToken("4d59855f65ff7482fd071cece9b993c42de1b856")
 	ctx, _ := baseContextWithApiTokenAction.DoWithDefaultClient()
