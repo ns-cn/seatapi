@@ -99,7 +99,7 @@ func (api SeaTableApi) AddRow(ctx BaseContext, tableName string, data interface{
 // UpdateRow 更新行
 func (api SeaTableApi) UpdateRow(ctx BaseContext, tableName string, data UpdateRowReq) SeaTableAction[map[string]interface{}] {
 	url := api.assignUrl(ctx.DtableServer, "/api/v1/dtables/%s/rows/", ctx.DtableUuid)
-	body := map[string]interface{}{"table_name": tableName, "row_id": data.RowId, "row": data.Data}
+	body := map[string]interface{}{"table_name": tableName, "row_id": data.RowId, "row": data.RowData}
 	payload := strings.NewReader(util.ParseToJsonString(body))
 	req, _ := http.NewRequest("PUT", url, payload)
 	req.Header.Add("accept", "application/json")
@@ -110,8 +110,8 @@ func (api SeaTableApi) UpdateRow(ctx BaseContext, tableName string, data UpdateR
 
 // UpdateRowReq 更新行请求
 type UpdateRowReq struct {
-	RowId string      `json:"row_id"`
-	Data  interface{} `json:"data"`
+	RowId   string      `json:"row_id"`
+	RowData interface{} `json:"row"`
 }
 
 // DeleteRow 删除行
