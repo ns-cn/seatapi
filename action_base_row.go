@@ -110,7 +110,7 @@ func (api SeaTableApi) UpdateRow(ctx BaseContext, tableName string, data UpdateR
 
 // UpdateRowReq 更新行请求
 type UpdateRowReq struct {
-	RowId string      `json:"rowId"`
+	RowId string      `json:"row_id"`
 	Data  interface{} `json:"data"`
 }
 
