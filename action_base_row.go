@@ -9,7 +9,7 @@ import (
 
 // ListRowsWithSQL 使用SQL方式获取行数据
 // convertKeys 确定列是作为其键 （true） 返回，还是作为其名称（默认为 false）返回。
-func (api SeaTableApi) ListRowsWithSQL(ctx BaseContext, sql string, convertKeys bool) SeaTableAction[RowsWithSQL[map[string]interface{}]] {
+func (api SeaTableApi) ListRowsWithSQL(ctx *BaseContext, sql string, convertKeys bool) SeaTableAction[RowsWithSQL[map[string]interface{}]] {
 	url := api.assignUrl(ctx.DtableDb, "/api/v1/query/%s/", ctx.DtableUuid)
 	//url := api.wholeUrl("/dtable-db/api/v1/query/%s/", ctx.DtableUuid)
 	payload := strings.NewReader(fmt.Sprintf("{\"convert_keys\":%t,\"sql\":\"%s\"}", convertKeys, sql))
@@ -51,7 +51,7 @@ func ParseRowsWithSQL[F any, T any](from RowsWithSQL[F], to *RowsWithSQL[T]) {
 
 // GetRowByRowId 获取行数据
 // convertKeys 确定列是作为其键 （true） 返回，还是作为其名称（默认为 false）返回。
-func (api SeaTableApi) GetRowByRowId(ctx BaseContext, tableName string, rowId string, convertKeys bool) SeaTableAction[map[string]interface{}] {
+func (api SeaTableApi) GetRowByRowId(ctx *BaseContext, tableName string, rowId string, convertKeys bool) SeaTableAction[map[string]interface{}] {
 	url := api.assignUrl(ctx.DtableServer, "/api/v1/dtables/%s/rows/%s/?table_name=%s&convert=%b", ctx.DtableUuid, rowId, tableName, convertKeys)
 	req, _ := http.NewRequest("GET", url, nil)
 	req.Header.Add("accept", "application/json")
@@ -77,7 +77,7 @@ type InsertRowAnchor struct {
 }
 
 // AddRow 添加行
-func (api SeaTableApi) AddRow(ctx BaseContext, tableName string, data interface{}, anchor *InsertRowAnchor) SeaTableAction[map[string]interface{}] {
+func (api SeaTableApi) AddRow(ctx *BaseContext, tableName string, data interface{}, anchor *InsertRowAnchor) SeaTableAction[map[string]interface{}] {
 	url := api.assignUrl(ctx.DtableServer, "/api/v1/dtables/%s/rows/", ctx.DtableUuid)
 	body := map[string]interface{}{"table_name": tableName, "row": data}
 	if anchor != nil && anchor.AnchorRowId != "" {
@@ -97,7 +97,7 @@ func (api SeaTableApi) AddRow(ctx BaseContext, tableName string, data interface{
 }
 
 // UpdateRow 更新行
-func (api SeaTableApi) UpdateRow(ctx BaseContext, tableName string, data UpdateRowReq) SeaTableAction[map[string]interface{}] {
+func (api SeaTableApi) UpdateRow(ctx *BaseContext, tableName string, data UpdateRowReq) SeaTableAction[map[string]interface{}] {
 	url := api.assignUrl(ctx.DtableServer, "/api/v1/dtables/%s/rows/", ctx.DtableUuid)
 	body := map[string]interface{}{"table_name": tableName, "row_id": data.RowId, "row": data.RowData}
 	payload := strings.NewReader(util.ParseToJsonString(body))
@@ -115,7 +115,7 @@ type UpdateRowReq struct {
 }
 
 // DeleteRow 删除行
-func (api SeaTableApi) DeleteRow(ctx BaseContext, tableName string, rowId string) SeaTableAction[map[string]interface{}] {
+func (api SeaTableApi) DeleteRow(ctx *BaseContext, tableName string, rowId string) SeaTableAction[map[string]interface{}] {
 	url := api.assignUrl(ctx.DtableServer, "/api/v1/dtables/%s/rows/", ctx.DtableUuid)
 	body := map[string]interface{}{"table_name": tableName, "row_id": rowId}
 	payload := strings.NewReader(util.ParseToJsonString(body))
@@ -127,7 +127,7 @@ func (api SeaTableApi) DeleteRow(ctx BaseContext, tableName string, rowId string
 }
 
 // AddRows 添加多行数据
-func (api SeaTableApi) AddRows(ctx BaseContext, tableName string, data ...interface{}) SeaTableAction[map[string]interface{}] {
+func (api SeaTableApi) AddRows(ctx *BaseContext, tableName string, data ...interface{}) SeaTableAction[map[string]interface{}] {
 	url := api.assignUrl(ctx.DtableServer, "/api/v1/dtables/%s/batch-append-rows/", ctx.DtableUuid)
 	body := map[string]interface{}{"table_name": tableName, "rows": data}
 	payload := strings.NewReader(util.ParseToJsonString(body))
@@ -139,7 +139,7 @@ func (api SeaTableApi) AddRows(ctx BaseContext, tableName string, data ...interf
 }
 
 // UpdateRows 更新多行数据
-func (api SeaTableApi) UpdateRows(ctx BaseContext, tableName string, data ...UpdateRowReq) SeaTableAction[map[string]interface{}] {
+func (api SeaTableApi) UpdateRows(ctx *BaseContext, tableName string, data ...UpdateRowReq) SeaTableAction[map[string]interface{}] {
 	url := api.assignUrl(ctx.DtableServer, "/api/v1/dtables/%s/batch-update-rows/", ctx.DtableUuid)
 	body := map[string]interface{}{"table_name": tableName, "updates": data}
 	payload := strings.NewReader(util.ParseToJsonString(body))
@@ -151,7 +151,7 @@ func (api SeaTableApi) UpdateRows(ctx BaseContext, tableName string, data ...Upd
 }
 
 // DeleteRows 删除多行数据
-func (api SeaTableApi) DeleteRows(ctx BaseContext, tableName string, rowIds ...string) SeaTableAction[map[string]interface{}] {
+func (api SeaTableApi) DeleteRows(ctx *BaseContext, tableName string, rowIds ...string) SeaTableAction[map[string]interface{}] {
 	url := api.assignUrl(ctx.DtableServer, "/api/v1/dtables/%s/batch-delete-rows/", ctx.DtableUuid)
 	body := map[string]interface{}{"table_name": tableName, "row_ids": rowIds}
 	payload := strings.NewReader(util.ParseToJsonString(body))
@@ -163,7 +163,7 @@ func (api SeaTableApi) DeleteRows(ctx BaseContext, tableName string, rowIds ...s
 }
 
 // LockRows 锁定多行数据
-func (api SeaTableApi) LockRows(ctx BaseContext, tableName string, rowIds ...string) SeaTableAction[map[string]interface{}] {
+func (api SeaTableApi) LockRows(ctx *BaseContext, tableName string, rowIds ...string) SeaTableAction[map[string]interface{}] {
 	url := api.assignUrl(ctx.DtableServer, "/api/v1/dtables/%s/lock-rows/", ctx.DtableUuid)
 	body := map[string]interface{}{"table_name": tableName, "row_ids": rowIds}
 	payload := strings.NewReader(util.ParseToJsonString(body))
@@ -175,7 +175,7 @@ func (api SeaTableApi) LockRows(ctx BaseContext, tableName string, rowIds ...str
 }
 
 // UnLockRows 解锁多行数据
-func (api SeaTableApi) UnLockRows(ctx BaseContext, tableName string, rowIds ...string) SeaTableAction[map[string]interface{}] {
+func (api SeaTableApi) UnLockRows(ctx *BaseContext, tableName string, rowIds ...string) SeaTableAction[map[string]interface{}] {
 	url := api.assignUrl(ctx.DtableServer, "/api/v1/dtables/%s/unlock-rows/", ctx.DtableUuid)
 	body := map[string]interface{}{"table_name": tableName, "row_ids": rowIds}
 	payload := strings.NewReader(util.ParseToJsonString(body))
